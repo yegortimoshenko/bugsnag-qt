@@ -1,0 +1,12 @@
+#ifndef BUGSNAGQT_GLOBAL_H
+#define BUGSNAGQT_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(BUGSNAGQT_LIBRARY)
+#  define BUGSNAGQTSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define BUGSNAGQTSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // BUGSNAGQT_GLOBAL_H
