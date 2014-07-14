@@ -1,7 +1,9 @@
-#ifndef BUGSNAG_H
-#define BUGSNAG_H
+// Copyright 2014 Tanel Lebedev.
 
-#include "bugsnag-qt_global.h"
+#ifndef BUGSNAG_H_
+#define BUGSNAG_H_
+
+#include "./bugsnag-qt_global.h"
 
 #include <QJsonObject>
 #include <QObject>
@@ -10,16 +12,19 @@
 #include <QJsonArray>
 #include <QHash>
 #include <QStringList>
+#include <QUrl>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
+#include <QJsonDocument>
 
-class Notifier
-{
-public:
+class Notifier {
+ public:
     Notifier()
         : name("Bugsnag QT")
     , version("1.0.0")
     , url("https://github.com/tanel/bugsnag-qt") {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["name"] = name;
         json["version"] = version;
         json["url"] = url;
@@ -31,7 +36,7 @@ public:
 };
 
 class StackTrace {
-public:
+ public:
     StackTrace()
         : file("")
     , lineNumber(0)
@@ -39,7 +44,7 @@ public:
     , method("")
     , inProject(false) {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["file"] = file;
         json["lineNumber"] = lineNumber;
         json["columnNumber"] = columnNumber;
@@ -54,14 +59,13 @@ public:
     bool inProject;
 };
 
-class Exception
-{
-public:
+class Exception {
+ public:
     Exception()
         : errorClass("")
     , message("") {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["errorClass"] = errorClass;
         json["message"] = message;
 
@@ -79,15 +83,14 @@ public:
     QList<StackTrace> stacktrace;
 };
 
-class User
-{
-public:
+class User {
+ public:
     User()
         : id("")
     , name("")
     , email("") {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["id"] = id;
         json["name"] = name;
         json["email"] = email;
@@ -98,14 +101,13 @@ public:
     QString email;
 };
 
-class App
-{
-public:
+class App {
+ public:
     App()
         : version("")
     , releaseStage("production") {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["version"] = version;
         json["releaseStage"] = releaseStage;
     }
@@ -114,14 +116,13 @@ public:
     QString releaseStage;
 };
 
-class Device
-{
-public:
+class Device {
+ public:
     Device()
         : osVersion("")
     , hostname("") {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["osVersion"] = osVersion;
         json["hostname"] = hostname;
     }
@@ -130,15 +131,14 @@ public:
     QString hostname;
 };
 
-class Event
-{
-public:
+class Event {
+ public:
     Event()
         : context("")
     , groupingHash("")
     , severity("error") {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["payloadVersion"] = QString("2");
 
         QJsonArray exceptionsJSON;
@@ -166,7 +166,8 @@ public:
         json["device"] = deviceJSON;
 
         QJsonObject metaDataJSON;
-        QHash<QString, QHash<QString, QString> >::const_iterator i = metaData.begin();
+        QHash<QString, QHash<QString, QString> >::const_iterator i =
+            metaData.begin();
         while (i != metaData.constEnd()) {
             QJsonObject valuesJSON;
             QHash<QString, QString>::const_iterator j = i.value().constBegin();
@@ -189,12 +190,11 @@ public:
     QHash<QString, QHash<QString, QString> > metaData;
 };
 
-class Payload
-{
-public:
+class Payload {
+ public:
     Payload() {}
 
-    void write(QJsonObject &json) const {
+    void write(QJsonObject &json) const {  // NOLINT
         json["apiKey"] = apiKey;
 
         QJsonObject notifierJSON;
@@ -207,20 +207,21 @@ public:
     QList<Event> events;
 };
 
-class BUGSNAGQTSHARED_EXPORT Bugsnag
-{
+class BUGSNAGQTSHARED_EXPORT Bugsnag : public QObject {
+    Q_OBJECT
 
-public:
+ public:
     Bugsnag();
 
-    static bool notify(QObject *receiver,
-                       QEvent *evt,
-                       std::exception &e,
-                       User *user = 0,
-                       QString context = QString(""),
-                       App *app = 0,
-                       Device *device = 0,
-                       QHash<QString, QHash<QString, QString> > *metadata = 0) {
+    bool notify(
+        QObject *receiver,
+        QEvent *evt,
+        std::exception &e,
+        User *user = 0,
+        QString context = QString(""),
+        App *app = 0,
+        Device *device = 0,
+        QHash<QString, QHash<QString, QString> > *metadata = 0) {
         Payload payload;
         payload.apiKey = Bugsnag::apiKey;
         payload.notifier = Notifier();
@@ -245,6 +246,31 @@ public:
             event.metaData = *metadata;
         }
         payload.events << event;
+
+        QString protocol("https");
+        if (!Bugsnag::useSSL) {
+            protocol = "http";
+        }
+        QUrl url(protocol + "://notify.bugsnag.com");
+        QNetworkRequest request(url);
+
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+                          "application/json");
+
+        QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+        connect(manager, SIGNAL(finished(QNetworkReply*)),  // NOLINT
+                this, SLOT(requestFinished(QNetworkReply*)));  // NOLINT
+
+        QJsonObject payloadJSON;
+        payload.write(payloadJSON);
+        QJsonDocument doc(payloadJSON);
+
+        QByteArray data = doc.toJson();
+        qDebug() << "Bugsnag payload " << data;
+
+        manager->post(request, data);
+
         return true;
     }
 
@@ -253,11 +279,11 @@ public:
     static QStringList notifyReleaseStages;
     static bool autoNotify;
     static bool useSSL;
+
+ private slots:  // NOLINT
+    void requestFinished(QNetworkReply *reply) {
+        qDebug() << "requestFinished " << reply;
+    }
 };
 
-QString Bugsnag::releaseStage = QString("production");
-QStringList Bugsnag::notifyReleaseStages = QStringList() << "production" << "development";
-bool Bugsnag::autoNotify = true;
-bool Bugsnag::useSSL = true;
-
-#endif // BUGSNAG_H
+#endif  // BUGSNAG_H_

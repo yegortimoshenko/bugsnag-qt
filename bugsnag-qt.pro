@@ -13,6 +13,12 @@ TEMPLATE = lib
 
 DEFINES += BUGSNAGQT_LIBRARY
 
+CONFIG(debug, debug|release) {
+        DESTDIR = build/debug
+} else {
+        DESTDIR = build/release
+}
+
 SOURCES += bugsnag.cpp
 
 HEADERS += bugsnag.h\
