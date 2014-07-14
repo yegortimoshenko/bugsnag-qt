@@ -9,6 +9,7 @@
 #include <QList>
 #include <QJsonArray>
 #include <QHash>
+#include <QStringList>
 
 class Notifier
 {
@@ -206,6 +207,17 @@ public:
     Bugsnag();
 
     static bool notify(QObject *receiver, QEvent *event);
+
+    static QString apiKey;
+    static QString releaseStage;
+    static QStringList notifyReleaseStages;
+    static bool autoNotify;
+    static bool useSSL;
 };
+
+QString Bugsnag::releaseStage = QString("production");
+QStringList Bugsnag::notifyReleaseStages = QStringList() << "production" << "development";
+bool Bugsnag::autoNotify = true;
+bool Bugsnag::useSSL = true;
 
 #endif // BUGSNAG_H
