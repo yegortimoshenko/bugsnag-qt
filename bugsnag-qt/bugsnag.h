@@ -14,13 +14,20 @@
 class Notifier
 {
 public:
-    Notifier() {}
+    Notifier()
+        : name("Bugsnag QT")
+    , version("1.0.0")
+    , url("https://github.com/tanel/bugsnag-qt") {}
 
     void write(QJsonObject &json) const {
-        json["name"] = QString("Bugsnag QT");
-        json["version"] = QString("1.0.0");
-        json["url"] = QString("https://github.com/tanel/bugsnag-qt");
+        json["name"] = name;
+        json["version"] = version;
+        json["url"] = url;
     }
+
+    QString name;
+    QString version;
+    QString url;
 };
 
 class StackTrace {
@@ -206,7 +213,40 @@ class BUGSNAGQTSHARED_EXPORT Bugsnag
 public:
     Bugsnag();
 
-    static bool notify(QObject *receiver, QEvent *event);
+    static bool notify(QObject *receiver,
+                       QEvent *evt,
+                       std::exception &e,
+                       User *user = 0,
+                       QString context = QString(""),
+                       App *app = 0,
+                       Device *device = 0,
+                       QHash<QString, QHash<QString, QString> > *metadata = 0) {
+        Payload payload;
+        payload.apiKey = Bugsnag::apiKey;
+        payload.notifier = Notifier();
+        Exception exception;
+        exception.message = e.what();
+        exception.errorClass = "std::exception";
+        // FIXME: exception.stacktrace
+        Event event;
+        event.context = context;
+        event.groupingHash = receiver->objectName();
+        event.exceptions << exception;
+        if (user) {
+            event.user = *user;
+        }
+        if (app) {
+            event.app = *app;
+        }
+        if (device) {
+            event.device = *device;
+        }
+        if (metadata) {
+            event.metaData = *metadata;
+        }
+        payload.events << event;
+        return true;
+    }
 
     static QString apiKey;
     static QString releaseStage;
