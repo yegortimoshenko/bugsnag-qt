@@ -12,3 +12,5 @@ bool Bugsnag::useSSL = true;
 Device Bugsnag::device;
 App Bugsnag::app;
 User Bugsnag::user;
+
+Bugsnag Bugsnag::instance;
