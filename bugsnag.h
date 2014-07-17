@@ -7,7 +7,6 @@
 
 #include <QJsonObject>
 #include <QObject>
-#include <QEvent>
 #include <QList>
 #include <QJsonArray>
 #include <QHash>
@@ -214,8 +213,6 @@ class BUGSNAGQTSHARED_EXPORT Bugsnag : public QObject {
     Bugsnag() {}
 
     bool notify(
-        QObject *receiver,
-        QEvent *evt,
         const QString message,
         QString context = QString(""),
         QHash<QString, QHash<QString, QString> > *metadata = 0) {
@@ -228,7 +225,6 @@ class BUGSNAGQTSHARED_EXPORT Bugsnag : public QObject {
         // FIXME: exception.stacktrace
         Event event;
         event.context = context;
-        event.groupingHash = receiver->objectName();
         event.exceptions << exception;
         event.user = Bugsnag::user;
         event.app = Bugsnag::app;
