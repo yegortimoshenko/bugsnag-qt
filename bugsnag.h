@@ -211,40 +211,29 @@ class BUGSNAGQTSHARED_EXPORT Bugsnag : public QObject {
     Q_OBJECT
 
  public:
-    Bugsnag();
+    Bugsnag() {}
 
     bool notify(
         QObject *receiver,
         QEvent *evt,
-        std::exception &e,
-        User *user = 0,
+        const QString message,
         QString context = QString(""),
-        App *app = 0,
-        Device *device = 0,
         QHash<QString, QHash<QString, QString> > *metadata = 0) {
         Payload payload;
         payload.apiKey = Bugsnag::apiKey;
         payload.notifier = Notifier();
         Exception exception;
-        exception.message = e.what();
+        exception.message = message;
         exception.errorClass = "std::exception";
         // FIXME: exception.stacktrace
         Event event;
         event.context = context;
         event.groupingHash = receiver->objectName();
         event.exceptions << exception;
-        if (user) {
-            event.user = *user;
-        }
-        if (app) {
-            event.app = *app;
-        }
-        if (device) {
-            event.device = *device;
-        }
-        if (metadata) {
-            event.metaData = *metadata;
-        }
+        event.user = Bugsnag::user;
+        event.app = Bugsnag::app;
+        event.device = Bugsnag::device;
+        event.metaData = *metadata;
         payload.events << event;
 
         QString protocol("https");
@@ -279,6 +268,10 @@ class BUGSNAGQTSHARED_EXPORT Bugsnag : public QObject {
     static QStringList notifyReleaseStages;
     static bool autoNotify;
     static bool useSSL;
+
+    static Device device;
+    static App app;
+    static User user;
 
  private slots:  // NOLINT
     void requestFinished(QNetworkReply *reply) {
