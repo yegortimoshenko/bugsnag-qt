@@ -1,5 +1,3 @@
-// Copyright 2014 Tanel Lebedev.
-
 #include "./bugsnag.h"
 
 QString Bugsnag::apiKey = QString("");

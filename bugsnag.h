@@ -1,8 +1,4 @@
-// Copyright 2014 Tanel Lebedev.
-
-#ifndef BUGSNAG_H_
-#define BUGSNAG_H_
-
+#pragma once
 #include "./bugsnag-qt_global.h"
 
 #include <QDebug>
@@ -313,5 +309,3 @@ private slots: // NOLINT
     delete reply;
   }
 };
-
-#endif // BUGSNAG_H_
