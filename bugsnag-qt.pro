@@ -1,30 +1,25 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2014-07-14T14:29:19
-#
-#-------------------------------------------------
-
-QT       += network
-
-QT       -= gui
+QT += network
 
 TARGET = bugsnag-qt
 TEMPLATE = lib
 
 DEFINES += BUGSNAGQT_LIBRARY
-
-CONFIG(debug, debug|release) {
-        DESTDIR = build/debug
-} else {
-        DESTDIR = build/release
-}
-
 SOURCES += bugsnag.cpp
-
-HEADERS += bugsnag.h\
-        bugsnag-qt_global.h
+HEADERS += bugsnag.h bugsnag-qt_global.h
 
 unix {
-    target.path = /usr/lib
-    INSTALLS += target
+  headers.path = $$PREFIX/include
+  target.path = $$PREFIX/lib
+
+  INSTALLS += headers target
+
+  CONFIG += create_pc create_prl
+
+  QMAKE_PKGCONFIG_NAME = $$TARGET
+  QMAKE_PKGCONFIG_DESCRIPTION = Bugsnag client for Qt projects
+  QMAKE_PKGCONFIG_PREFIX = $$PREFIX
+  QMAKE_PKGCONFIG_LIBDIR = $$target.path
+  QMAKE_PKGCONFIG_INCDIR = $$headers.path
+  QMAKE_PKGCONFIG_VERSION = 20180522.005732
+  QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 }
