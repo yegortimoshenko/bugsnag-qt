@@ -16,7 +16,7 @@ unix {
   INSTALLS += headers target
 
   QMAKE_PKGCONFIG_NAME = $$TARGET
-  QMAKE_PKGCONFIG_DESCRIPTION = Bugsnag client for Qt projects
+  QMAKE_PKGCONFIG_DESCRIPTION = Bugsnag client library for Qt 5
   QMAKE_PKGCONFIG_PREFIX = $$PREFIX
   QMAKE_PKGCONFIG_LIBDIR = $$target.path
   QMAKE_PKGCONFIG_INCDIR = $$headers.path
