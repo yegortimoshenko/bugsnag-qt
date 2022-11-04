@@ -17,8 +17,8 @@
 class Notifier {
 public:
   Notifier()
-      : name("Bugsnag QT"), version("1.0.0"),
-        url("https://github.com/tanel/bugsnag-qt") {}
+      : name("Bugsnag Qt"), version("20180522.005732"),
+        url("https://github.com/yanalunaterra/bugsnag-qt") {}
 
   void write(QJsonObject &json) const {
     json["name"] = name;
