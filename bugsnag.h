@@ -1,5 +1,5 @@
 #pragma once
-#include "./bugsnag-qt_global.h"
+#include "bugsnag-qt_global.h"
 
 #include <QDebug>
 #include <QHash>

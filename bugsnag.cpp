@@ -1,4 +1,4 @@
-#include "./bugsnag.h"
+#include "bugsnag.h"
 
 QString Bugsnag::apiKey = QString("");
 QString Bugsnag::releaseStage = QString("production");
