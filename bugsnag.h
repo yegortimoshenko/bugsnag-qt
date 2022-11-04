@@ -20,7 +20,7 @@ public:
       : name("Bugsnag QT"), version("1.0.0"),
         url("https://github.com/tanel/bugsnag-qt") {}
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["name"] = name;
     json["version"] = version;
     json["url"] = url;
@@ -37,7 +37,7 @@ public:
       : file(""), lineNumber(0), columnNumber(0), method(""), inProject(false) {
   }
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["file"] = file;
     json["lineNumber"] = lineNumber;
     json["columnNumber"] = columnNumber;
@@ -56,7 +56,7 @@ class Exception {
 public:
   Exception() : errorClass(""), message("") {}
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["errorClass"] = errorClass;
     json["message"] = message;
 
@@ -78,7 +78,7 @@ class User {
 public:
   User() : id(""), name(""), email("") {}
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["id"] = id;
     json["name"] = name;
     json["email"] = email;
@@ -93,7 +93,7 @@ class App {
 public:
   App() : version(""), releaseStage("production") {}
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["version"] = version;
     json["releaseStage"] = releaseStage;
   }
@@ -106,7 +106,7 @@ class Device {
 public:
   Device() : osVersion(""), hostname("") {}
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["osVersion"] = osVersion;
     json["hostname"] = hostname;
   }
@@ -119,7 +119,7 @@ class Event {
 public:
   Event() : context(""), groupingHash(""), severity("error") {}
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["payloadVersion"] = QString("2");
 
     if (exceptions.count()) {
@@ -194,7 +194,7 @@ class Payload {
 public:
   Payload() {}
 
-  void write(QJsonObject &json) const { // NOLINT
+  void write(QJsonObject &json) const {
     json["apiKey"] = apiKey;
 
     QJsonObject notifierJSON;
@@ -267,8 +267,8 @@ public:
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(&instance);
 
-    connect(manager, SIGNAL(finished(QNetworkReply *)),         // NOLINT
-            &instance, SLOT(requestFinished(QNetworkReply *))); // NOLINT
+    connect(manager, SIGNAL(finished(QNetworkReply *)), &instance,
+            SLOT(requestFinished(QNetworkReply *)));
 
     QJsonObject payloadJSON;
     payload.write(payloadJSON);
@@ -294,7 +294,7 @@ public:
 
   static Bugsnag instance;
 
-private slots: // NOLINT
+private slots:
   void requestFinished(QNetworkReply *reply) {
     if (reply->error() != QNetworkReply::NoError) {
       qDebug() << "Bugsnag requestFinished with error " << reply->error()
